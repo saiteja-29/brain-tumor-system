@@ -1,4 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -9,6 +11,7 @@ import cv2
 from src.gradcam import get_gradcam, overlay_heatmap
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="api/frontend"), name="static")
 
 # Load model once (IMPORTANT)
 model = tf.keras.models.load_model("models/model.h5")
@@ -31,7 +34,7 @@ def preprocess(image):
 
 @app.get("/")
 def home():
-    return {"message": "Brain Tumor Detection API is running 🚀"}
+    return FileResponse("api/frontend/index.html")
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
